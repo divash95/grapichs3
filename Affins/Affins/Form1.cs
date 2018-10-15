@@ -202,7 +202,61 @@ namespace Affins
                 MessageBox.Show("Точка находится вне многоугольника", "Положение точки");
         }
 
-       
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if ((pol == null) || (points.Count < 1))
+            {
+                MessageBox.Show("Нарисуйте только многоугольник и точку!", "Ошибка!");
+                return;
+            }
+            Edge edg = new Edge(points[points.Count - 1], new My_point(pictureBox1.Width - 1, points[points.Count - 1].Y));
+            int itsCount = 0;
+            foreach (Edge e1 in pol.edges)
+            {
+                if (e1.P1.Y == e1.P2.Y)
+                    continue;
+                if (haveIntersection(edg, e1))
+                    itsCount++;
+            }
+            if (itsCount % 2 == 0)
+                MessageBox.Show("Точка снаружи", "Положение точки");
+            else
+                MessageBox.Show("Точка внутри", "Положение точки");
+        }
+        My_point intersection(My_point A, My_point B, My_point C, My_point D)
+        {
+            double xo = A.X, yo = A.Y;
+            double p = B.X - A.X, q = B.Y - A.Y;
+
+            double x1 = C.X, y1 = C.Y;
+            double p1 = D.X - C.X, q1 = D.Y - C.Y;
+
+            double x = (xo * q * p1 - x1 * q1 * p - yo * p * p1 + y1 * p * p1) /
+                (q * p1 - q1 * p);
+            double y = (yo * p * q1 - y1 * p1 * q - xo * q * q1 + x1 * q * q1) /
+                (p * q1 - p1 * q);
+
+            return new My_point((int)Math.Round(x), (int)Math.Round(y));
+        }
+
+        private bool haveIntersection(Edge e1, Edge e2)
+        {
+
+            My_point its = intersection(e1.P1, e1.P2, e2.P1, e2.P2);
+            if (its.X == e2.P1.X && its.Y == e2.P1.Y && e2.P1.Y < e2.P2.Y)
+                return false;
+            if (its.X == e2.P2.X && its.Y == e2.P2.Y && e2.P2.Y < e2.P1.Y)
+                return false;
+            if ((its.X >= Math.Min(e1.P1.X, e1.P2.X)) && (its.X <= Math.Max(e1.P1.X, e1.P2.X)) &&
+                (its.X >= Math.Min(e2.P1.X, e2.P2.X)) && (its.X <= Math.Max(e2.P1.X, e2.P2.X)) &&
+                (its.Y >= Math.Min(e1.P1.Y, e1.P2.Y)) && (its.Y <= Math.Max(e1.P1.Y, e1.P2.Y)) &&
+                (its.Y >= Math.Min(e2.P1.Y, e2.P2.Y)) && (its.Y <= Math.Max(e2.P1.Y, e2.P2.Y)))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
     }
 
     public class My_point
